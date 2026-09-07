@@ -3,6 +3,15 @@ pipeline {
         label 'Jenkins-agent'
     }
 
+    environment {
+        APP_NAME   = "register-app-pipeline"
+        RELEASE    = "1.0.0"
+        DOCKER_USER = "Ibrahimkamal17"
+        DOCKER_PASS = 'docker-token'
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
+        IMAGE_TAG  = "${RELEASE}-${BUILD_NUMBER}"
+    }
+
     tools {
         jdk 'Java17'
         maven 'Maven3'
@@ -53,6 +62,21 @@ pipeline {
                         abortPipeline: false,
                         credentialsId: 'jenkins-sonarqube-token'
                     )
+                }
+            }
+        }
+
+        stage("Build & Push Docker Image") {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKER_PASS) {
+                        docker_image = docker.build "${IMAGE_NAME}"
+                    }
+
+                    docker.withRegistry('', DOCKER_PASS) {
+                        docker_image.push("${IMAGE_TAG}")
+                        docker_image.push('latest')
+                    }
                 }
             }
         }
