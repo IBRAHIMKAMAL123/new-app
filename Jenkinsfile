@@ -1,18 +1,17 @@
 pipeline {
-    agent {
-        label 'Jenkins-agent'
+    agent { label 'Jenkins-agent' }
+
+    tools {
+        jdk 'Java17'
+        maven 'Maven3'
     }
+
     environment {
         APP_NAME    = "register-app-pipeline"
         RELEASE     = "1.0.0"
         DOCKER_USER = "Ibrahimkamal17"
         IMAGE_NAME  = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG   = "${RELEASE}-${BUILD_NUMBER}"
-        PATH        = "/usr/bin:${env.PATH}"
-    }
-    tools {
-        jdk 'Java17'
-        maven 'Maven3'
     }
 
     stages {
@@ -67,11 +66,18 @@ pipeline {
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-token') {
+
+                    docker.withRegistry(
+                        'https://index.docker.io/v1/',
+                        'docker-token'
+                    ) {
                         docker_image = docker.build "${IMAGE_NAME}"
                     }
 
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-token') {
+                    docker.withRegistry(
+                        'https://index.docker.io/v1/',
+                        'docker-token'
+                    ) {
                         docker_image.push("${IMAGE_TAG}")
                         docker_image.push('latest')
                     }
