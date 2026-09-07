@@ -67,11 +67,11 @@ pipeline {
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_PASS) {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-token') {
                         docker_image = docker.build "${IMAGE_NAME}"
                     }
 
-                    docker.withRegistry('', DOCKER_PASS) {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-token') {
                         docker_image.push("${IMAGE_TAG}")
                         docker_image.push('latest')
                     }
